@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+from django.utils.text import slugify
+from django.conf import settings
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 # Create your models here.
 # MyAccountManager says what happens when a user and a super user is created
@@ -63,15 +67,28 @@ class UserAccount(AbstractBaseUser):
 # Notes class contains:
 class Notes(models.Model):
     # foreign key to the User
-    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
-    # link to the note == slug
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    # url to the note == slug
     slug = models.SlugField(blank=True, unique=True)
     # note title
-    title = models.CharField(max_length=200, blank=True)
+    title = models.CharField(max_length=200, blank=False, null=False)
     # category eg favorites
     category = models.CharField(max_length=200, blank=True)
     # note body
-    body = models.TextField(blank=True)
+    body = models.TextField(blank=False, null=False)
+    # date created
+    date_created = models.DateTimeField(auto_now_add=True, verbose_name="date_created")
+    # date_updated
+    date_updated = models.DateTimeField(auto_now_add=True, verbose_name="date_updated")
     
     def __str__(self):
         return self.title
+
+# this function will be called before the note is called to the database
+# so like an interceptor
+def pre_save_note_reciever(sender, instance, *args, **kwargs):
+    # if there is no slug, create slug
+    if not instance.slug:
+        instance.slug = slugify(instance.user.username + "-" + instance.title)
+
+pre_save.connect(pre_save_note_reciever, sender=Notes)
