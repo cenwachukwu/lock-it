@@ -59,3 +59,19 @@ class UserAccount(AbstractBaseUser):
     
     def has_module_perms(self, app_label):
         return True
+
+# Notes class contains:
+class Notes(models.Model):
+    # foreign key to the User
+    user = models.ForeignKey(UserAccount, on_delete=models.CASCADE)
+    # link to the note == slug
+    slug = models.SlugField(blank=True, unique=True)
+    # note title
+    title = models.CharField(max_length=200, blank=True)
+    # category eg favorites
+    category = models.CharField(max_length=200, blank=True)
+    # note body
+    body = models.TextField(blank=True)
+    
+    def __str__(self):
+        return self.title
