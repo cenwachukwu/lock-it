@@ -8,6 +8,7 @@ from .serializers import NotesSerializer
 # The root of our API is going to be a view that supports listing all the existing notes, or creating a new note.
 @api_view(['GET', 'POST'])
 def notes_list(request):
+    
     """
     List all code notes, or create a new note.
     """
@@ -28,6 +29,10 @@ def notes_list(request):
 # get notes detail view
 @api_view(['GET',])
 def notes_detail_view(request, slug):
+
+    """
+    Retrieve, update or delete a note.
+    """
     try:
         notes = Notes.objects.get(slug=slug)
     except Notes.DoesNotExist:
