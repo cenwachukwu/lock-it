@@ -8,7 +8,7 @@ from .serializers import NotesSerializer
 # The root of our API is going to be a view that supports listing all the existing notes, or creating a new note.
 @api_view(['GET', 'POST'])
 def notes_list(request):
-    
+
     """
     List all code notes, or create a new note.
     """
@@ -33,12 +33,12 @@ def notes_detail_view(request, slug):
     """
     Retrieve, update or delete a note.
     """
+
     try:
         notes = Notes.objects.get(slug=slug)
     except Notes.DoesNotExist:
-        # use response when returning responses from the rest framework
         return Response(status=status.HTTP_404_NOT_FOUND)
-    if request.method == "Get"
-        # here we are passing in a notes object into the NotesSerializer and returning the serialized data 
+
+    if request.method == 'GET':
         serializer = NotesSerializer(notes)
         return Response(serializer.data)

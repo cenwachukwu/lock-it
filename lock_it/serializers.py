@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import UserAccount, Notes,
+from .models import UserAccount, Notes
 
 
 # NotesSerializer serializer
