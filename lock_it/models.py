@@ -100,3 +100,4 @@ def create_auth_token(sender, instance=None, created=False, **kwargs):
     # if a userAccount object is created and saved into the db, we want to generate a token
     if created:
         Token.objects.create(user = instance)
+
