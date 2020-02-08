@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
 from .models import Notes, UserAccount
 from .serializers import NotesSerializer, RegistrationSerializer
 from rest_framework.authtoken.models import Token
+
 
 @api_view(['POST',])
 def registration_view(request):
@@ -38,6 +40,8 @@ def notes_list(request):
 
 # get notes detail view
 @api_view(['GET',])
+# adding permissions i.e. if you're not authenticated eg you dont have a token you cant see this view
+@permission_classes((IsAuthenticated,))
 def notes_detail_view(request, slug):
 
     """
@@ -56,6 +60,7 @@ def notes_detail_view(request, slug):
 
 # update notes with put request
 @api_view(['PUT',])
+@permission_classes((IsAuthenticated,))
 def notes_update_view(request, slug):
 
     """
@@ -66,6 +71,11 @@ def notes_update_view(request, slug):
         notes = Notes.objects.get(slug=slug)
     except Notes.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    # so with update/delete, we want to make sure that its the user that created the note that can edit or delete it
+    user = request.user
+    if notes.user != user:
+        return Response({'response':'you dont have permission to edit that.'})
 
     if request.method == 'PUT':
         serializer = NotesSerializer(notes, data=request.data)
@@ -80,6 +90,7 @@ def notes_update_view(request, slug):
 
 # delete notes
 @api_view(['DELETE',])
+@permission_classes((IsAuthenticated,))
 def notes_delete_view(request, slug):
 
     """
@@ -90,6 +101,11 @@ def notes_delete_view(request, slug):
         notes = Notes.objects.get(slug=slug)
     except Notes.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
+
+    # so with update/delete, we want to make sure that its the user that created the note that can edit or delete it
+    user = request.user
+    if notes.user != user:
+        return Response({'response':'you dont have permission to delete that.'})
 
     if request.method == 'DELETE':
         operation = notes.delete()
@@ -103,16 +119,18 @@ def notes_delete_view(request, slug):
 
 # post/create notes
 @api_view(['POST',])
+@permission_classes((IsAuthenticated,))
 def notes_create_view(request):
 
     """
     create a note.
     """
-    account = UserAccount.objects.get(pk=1)
+    account = request.user
     # pk = primary key
 
     # now we have to get the user b/c without the user, you cant make a new note
     notes = Notes(user=account)
+
     if request.method == "POST":
         # here we pass a the note that already has a user to the serializer
         serializer = NotesSerializer(notes, data=request.data)
