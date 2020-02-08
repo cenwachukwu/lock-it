@@ -31,7 +31,7 @@ def notes_list(request):
 def notes_detail_view(request, slug):
 
     """
-    Retrieve, update or delete a note.
+    Retrieve a note.
     """
 
     try:
@@ -42,3 +42,49 @@ def notes_detail_view(request, slug):
     if request.method == 'GET':
         serializer = NotesSerializer(notes)
         return Response(serializer.data)
+
+# update notes with put request
+@api_view(['PUT',])
+def notes_update_view(request, slug):
+
+    """
+    update a note.
+    """
+
+    try:
+        notes = Notes.objects.get(slug=slug)
+    except Notes.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PUT':
+        serializer = NotesSerializer(notes, data=request.data)
+        data = {}
+        if serializer.is_valid():
+            serializer.save()
+            # so if it's successful we'll return ["success":"update successful"]
+            data["success"] = "update successful"
+            return Response(data = data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# delete notes
+@api_view(['DELETE',])
+def notes_update_view(request, slug):
+
+    """
+    update a note.
+    """
+
+    try:
+        notes = Notes.objects.get(slug=slug)
+    except Notes.DoesNotExist:
+        return Response(status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'PUT':
+        serializer = NotesSerializer(notes, data=request.data)
+        data = {}
+        if serializer.is_valid():
+            serializer.save()
+            # so if it's successful we'll return ["success":"update successful"]
+            data["success"] = "update successful"
+            return Response(data = data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
