@@ -4,9 +4,18 @@ from .models import UserAccount, Notes
 
 # NotesSerializer serializer
 class NotesSerializer(serializers.ModelSerializer):
+
+    # we have to find a way to include username in our json file
+    username = serializers.SerializerMethodField('get_username_from_user')
+
     class Meta:
         model = Notes
-        fields = ['title', 'slug', 'body', 'date_updated']
+        fields = ['title', 'slug', 'body', 'date_updated', 'username']
+    
+    # 
+    def get_username_from_user(self, notes):
+        username = notes.user.username
+        return username
 
 # RegistrationSerializer serializer
 class RegistrationSerializer(serializers.ModelSerializer):
