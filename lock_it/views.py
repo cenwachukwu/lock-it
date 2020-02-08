@@ -6,7 +6,7 @@ from .models import Notes, UserAccount
 from .serializers import NotesSerializer
 
 # The root of our API is going to be a view that supports listing all the existing notes, or creating a new note.
-@api_view(['GET', 'POST'])
+@api_view(['GET',])
 def notes_list(request):
 
     """
@@ -17,12 +17,12 @@ def notes_list(request):
         serializer = NotesSerializer(notes, many=True)
         return Response(serializer.data)
 
-    elif request.method == 'POST':
-        serializer = NotesSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # elif request.method == 'POST':
+    #     serializer = NotesSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Create your views here.
@@ -68,10 +68,10 @@ def notes_update_view(request, slug):
 
 # delete notes
 @api_view(['DELETE',])
-def notes_update_view(request, slug):
+def notes_delete_view(request, slug):
 
     """
-    update a note.
+    delete a note.
     """
 
     try:
@@ -79,12 +79,32 @@ def notes_update_view(request, slug):
     except Notes.DoesNotExist:
         return Response(status=status.HTTP_404_NOT_FOUND)
 
-    if request.method == 'PUT':
-        serializer = NotesSerializer(notes, data=request.data)
+    if request.method == 'DELETE':
+        operation = notes.delete()
         data = {}
+        if operation:
+            data["success"] = "delete successful"
+        else:
+            data["failure"] = "delete failed"
+        return Response(data=data)
+
+# post/create notes
+@api_view(['POST',])
+def notes_create_view(request):
+
+    """
+    create a note.
+    """
+    account = UserAccount.objects.get(pk=1)
+    # pk = primary key
+
+    # now we have to get the user b/c without the user, you cant make a new note
+    notes = Notes(user=account)
+    if request.method == "POST":
+        # here we pass a the note that already has a user to the serializer
+        serializer = NotesSerializer(notes, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            # so if it's successful we'll return ["success":"update successful"]
-            data["success"] = "update successful"
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(data = data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
