@@ -2,8 +2,9 @@ from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.utils.text import slugify
 from django.conf import settings
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
+from rest_framework.authtoken.models import Token
 
 # Create your models here.
 # MyAccountManager says what happens when a user and a super user is created
@@ -92,3 +93,10 @@ def pre_save_note_reciever(sender, instance, *args, **kwargs):
         instance.slug = slugify(instance.user.username + "-" + instance.title)
 
 pre_save.connect(pre_save_note_reciever, sender=Notes)
+
+# generating a token for user registration
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_auth_token(sender, instance=None, created=False, **kwargs):
+    # if a userAccount object is created and saved into the db, we want to generate a token
+    if created:
+        Token.objects.create(user = instance)
