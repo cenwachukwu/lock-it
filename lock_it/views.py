@@ -5,7 +5,7 @@ from rest_framework.decorators import api_view
 from .models import Notes, UserAccount
 from .serializers import NotesSerializer
 
-# The root of our API is going to be a view that supports listing all the existing notes, or creating a new note.
+# The root of our API is going to be a view that supports listing all the existing notes.
 @api_view(['GET',])
 def notes_list(request):
 
@@ -17,15 +17,7 @@ def notes_list(request):
         serializer = NotesSerializer(notes, many=True)
         return Response(serializer.data)
 
-    # elif request.method == 'POST':
-    #     serializer = NotesSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(serializer.data, status=status.HTTP_201_CREATED)
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-# Create your views here.
 # get notes detail view
 @api_view(['GET',])
 def notes_detail_view(request, slug):
@@ -42,6 +34,7 @@ def notes_detail_view(request, slug):
     if request.method == 'GET':
         serializer = NotesSerializer(notes)
         return Response(serializer.data)
+
 
 # update notes with put request
 @api_view(['PUT',])
@@ -66,6 +59,7 @@ def notes_update_view(request, slug):
             return Response(data = data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # delete notes
 @api_view(['DELETE',])
 def notes_delete_view(request, slug):
@@ -87,6 +81,7 @@ def notes_delete_view(request, slug):
         else:
             data["failure"] = "delete failed"
         return Response(data=data)
+
 
 # post/create notes
 @api_view(['POST',])
