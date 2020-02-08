@@ -4,6 +4,7 @@ from lock_it.views import (notes_detail_view,
     notes_update_view,
     notes_delete_view,
     notes_create_view,
+    registration_view,
 )
 
 app_name = 'lock_it'
@@ -14,4 +15,5 @@ urlpatterns = [
     path('notes/<slug>/update', notes_update_view, name="update"),
     path('notes/<slug>/delete', notes_delete_view, name="delete"),
     path('create/', notes_create_view, name="create"),
+    path('register/', registration_view, name="registration"),
 ]

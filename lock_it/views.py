@@ -3,7 +3,22 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from .models import Notes, UserAccount
-from .serializers import NotesSerializer
+from .serializers import NotesSerializer, RegistrationSerializer
+
+@api_view(['POST',])
+def registration_view(request):
+    if request.method == 'POST':
+        serializer = RegistrationSerializer(data=request.data)
+        data = {}
+        if serializer.is_valid():
+            account = serializer.save()
+            data["response"] = "successfully registered new user"
+            data["email"] = account.email
+            data["username"] = account.username
+        else:
+            data = serializer.errors
+        return Response(data)
+
 
 # The root of our API is going to be a view that supports listing all the existing notes.
 @api_view(['GET',])
@@ -103,3 +118,5 @@ def notes_create_view(request):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
             return Response(data = data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+

@@ -19,7 +19,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
             'password' : {'write_only': True}
         }
     
-    # before we save user, we have to make sure the two password matches
+    # before we save the userAccount, we have to validate the data and also make sure the two password matches
     def save(self):
         account = UserAccount(
             email=self.validated_data['email'],
